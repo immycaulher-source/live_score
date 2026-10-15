@@ -1,5 +1,5 @@
 import express from 'express';
-import { matchesRouter } from './routes/matches.js';
+import { matchRouter } from './routes/matches.js';
 
 const app = express();
 const PORT = 8000;
@@ -10,7 +10,7 @@ app.get('/', (req, res) => {
   res.send('Sportz server is running!');
 });
 
-app.use('/matches', matchesRouter);
+app.use('/matches', matchRouter);
 
 app.listen(PORT, () => {
   console.log(`Server started: http://localhost:${PORT}`);
