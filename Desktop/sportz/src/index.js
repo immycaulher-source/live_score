@@ -4,6 +4,7 @@ import { matchRouter } from './routes/matches.js';
 
 
 import { attachWebSocketServer } from './ws/server.js';
+import { securityMiddleware } from './arcjet.js';
 
 
 const PORT = Number(process.env.PORT) || 8000;
@@ -17,6 +18,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Sportz server is running!');
 });
+
+app.use(securityMiddleware());
 
 app.use('/matches', matchRouter);
 
