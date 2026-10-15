@@ -1,21 +1,45 @@
-import { Router } from 'express';
-import { createMatchSchema } from '../validation/matches.js';
-import { db } from '../db/db.js';
-import { matches } from '../db/schema.js';
-import { getMatchStatus } from '../utils/match-status.js';
+import { Router } from "express";
+import { createMatchSchema, listMatchesQuerySchema } from "../validation/matches.js";
+import { db } from "../db/db.js";
+import { matches } from "../db/schema.js";
+import { getMatchStatus } from "../utils/match-status.js";
+import { desc } from "drizzle-orm";
 
-export const matchesRouter = Router();
+export const matchRouter = Router();
+const MAX_LIMIT = 100;
 
-matchesRouter.get('/', (req, res) => {
-  res.status(200).json({ message: 'Matches list' });
+matchRouter.get("/", async (req, res) => {
+  const parsed = listMatchesQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: "Invalid query",
+      details: parsed.error.issues,
+    });
+  }
+  const limit = Math.min(parsed.data.limit ?? 50, MAX_LIMIT);
+
+  try {
+    const data = await db
+      .select()
+      .from(matches)
+      .orderBy(desc(matches.createdAt))
+      .limit(limit);
+
+    res.json({ data });
+  } catch (e) {
+    res.status(500).json({
+      error: "Failed to fetch matches",
+      details: e instanceof Error ? e.message : String(e),
+    });
+  }
 });
 
-matchesRouter.post('/', async (req, res) => {
+matchRouter.post("/", async (req, res) => {
   const parsed = createMatchSchema.safeParse(req.body);
 
   if (!parsed.success) {
     return res.status(400).json({
-      error: 'Invalid Payload.',
+      error: "Invalid Payload.",
       details: parsed.error.issues,
     });
   }
@@ -38,7 +62,7 @@ matchesRouter.post('/', async (req, res) => {
     res.status(201).json({ data: event });
   } catch (error) {
     res.status(500).json({
-      error: 'failed to create match',
+      error: "failed to create match",
       details: error instanceof Error ? error.message : String(error),
     });
   }
