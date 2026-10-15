@@ -32,16 +32,3 @@ export const commentary = pgTable('commentary', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-export const matchesScorecard = pgTable('matches', {
-  id: serial('id').primaryKey(),
-  sport: text('sport').notNull(),
-  homeTeam: text('home_team').notNull(),
-  awayTeam: text('away_team').notNull(),
-  status: matchStatusEnum('status').notNull().default('scheduled'),
-  startTime: timestamp('start_time'),
-  endTime: timestamp('end_time'),
-  homeScore: integer('home_score').notNull().default(0),
-  awayScore: integer('away_score').notNull().default(0),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
-
